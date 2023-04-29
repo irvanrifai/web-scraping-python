@@ -10,6 +10,9 @@ import pandas as pd
 import time
 import csv
 
+# amount_data = 53514
+# amount_page = 5352
+
 # link to scrap
 url = "https://info.halal.go.id/pendampingan/"
 
@@ -26,11 +29,11 @@ driver.get(url)
 time.sleep(0.4)
 driver.implicitly_wait(20)
 # Get button and click it
-WebElement
-btn_click = WebDriverWait(driver, 10).until(ec.element_to_be_clickable((By.ID, "GridView3_lbView_0")))
-driver.execute_script("arguments[0].click();", btn_click)
+# WebElement
+# btn_click = WebDriverWait(driver, 20).until(ec.element_to_be_clickable((By.ID, "GridView3_lbView_0")))
+# driver.execute_script("arguments[0].click();", btn_click)
 # btn_click = WebDriverWait(driver, 10).until(ec.element_to_be_clickable((By.XPATH, "//div[contains(@id, 'GridView3_lbView_0')]//span//following::a[1]")))
-btn_click = WebDriverWait(driver, 10).until(ec.element_to_be_clickable((By.XPATH, "//a[contains(@id,'GridView3_lbView_0')]")))
+btn_click = WebDriverWait(driver, 20).until(ec.element_to_be_clickable((By.XPATH, "//a[contains(@id,'GridView3_lbView_0')]")))
 driver.execute_script("arguments[0].click();", btn_click)
 
 # print(btn_click.text)
@@ -50,7 +53,7 @@ driver.implicitly_wait(20)
 driver.switch_to.active_element
 driver.switch_to.window(driver.window_handles[0])
 # print(driver.page_source)
-time.sleep(0.4)
+time.sleep(1)
 # print(soup.select('span#lblNamaPendamping'))
 
 driver.implicitly_wait(20)
@@ -62,7 +65,7 @@ result = driver.execute_script(
         name:i.querySelector('span#lblNamaPendamping').textContent,
         email:i.querySelector('span#lblEmailPendamping').textContent,
         no_telp:i.querySelector('span#lblNoTelponPendamping').textContent,
-        pendamping_pelaku_usaha:i.querySelector('#gvData3').textContent,
+        pendampingan_pelaku_usaha:i.querySelector('table#gvData3>tbody').textContent,
      });
   }
   return data_pendamping;
