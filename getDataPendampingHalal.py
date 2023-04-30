@@ -73,12 +73,26 @@ result = driver.execute_script(
 )
 
 # r = pd.read_html(page.content)
-r = pd.read_html(driver.page_source)
-print(result)
+# r = pd.DataFrame(result)
+# print(r)
+
+keys = result[0].keys()
+
+with open('data_pendamping_halal.csv', 'w', newline='') as output_file:
+    dict_writer = csv.DictWriter(output_file, keys)
+    dict_writer.writeheader()
+    dict_writer.writerows(result)
+
+
+
+
+# 
+# 
+# 
 
 # Create var data_pendamping_pph as empty list
 # driver.switchTo().activeElement()
-parsed_code = BeautifulSoup(driver.page_source, 'html.parser')
+# parsed_code = BeautifulSoup(driver.page_source, 'html.parser')
 # modal = driver.find_element(By.ID, "GridView3_lbView_0").click()
 
 # modal = driver.find_element(By.ID, 'viewModalPPH')
