@@ -38,47 +38,67 @@ time.sleep(1)
 driver.implicitly_wait(40)
 
 # click btn pagination if not in current page, give condition
-btn_page_click = WebDriverWait(driver, 40).until(ec.element_to_be_clickable((By.XPATH,"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'11')]")))
-exec_click = driver.execute_script("arguments[0].click();", btn_page_click)
+# btn_page_click = WebDriverWait(driver, 40).until(ec.element_to_be_clickable((By.XPATH,"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'11')]")))
+# exec_click = driver.execute_script("arguments[0].click();", btn_page_click)
 
 time.sleep(1)
 driver.implicitly_wait(40)
 
-btn_page_click = WebDriverWait(driver, 40).until(ec.element_to_be_clickable((By.XPATH,"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'15')]")))
-exec_click = driver.execute_script("arguments[0].click();", btn_page_click)
+# btn_page_click = WebDriverWait(driver, 40).until(ec.element_to_be_clickable((By.XPATH,"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'13')]")))
+# exec_click = driver.execute_script("arguments[0].click();", btn_page_click)
 
-time.sleep(1)
-driver.implicitly_wait(40)
+for i in range(10):
+   time.sleep(2)
+   driver.implicitly_wait(40)
+   print(i)
+   btn_lihat_click = WebDriverWait(driver, 60).until(ec.element_to_be_clickable((By.XPATH, f"//a[contains(@id,'GridView3_lbView_{i}')]")))
+   driver.execute_script("arguments[0].click();", btn_lihat_click)
 
-tb = driver.find_element(By.ID, 'GridView3')
-print(tb.text)
+   # wait data fetched full after clicked button lihat
+   driver.implicitly_wait(60)
+   driver.switch_to.active_element
+   driver.switch_to.window(driver.window_handles[0])
+   time.sleep(2)
 
-btn_lihat_click = WebDriverWait(driver, 30).until(ec.element_to_be_clickable((By.XPATH, "//a[contains(@id,'GridView3_lbView_0')]")))
-driver.execute_script("arguments[0].click();", btn_lihat_click)
+   # execute (scrap data with identifier) rules execute script
+   result = driver.execute_script(
+   """
+   var data_pendamping = [];
+   for (var i of document.querySelectorAll('.modal#viewModalPPH')){
+      data_pendamping.push({
+         name:i.querySelector('span#lblNamaPendamping').textContent,
+         email:i.querySelector('span#lblEmailPendamping').textContent,
+         no_telp:i.querySelector('span#lblNoTelponPendamping').textContent,
+         pendampingan_pelaku_usaha:i.querySelector('table#gvData3>tbody').textContent,
+      });
+   }
+   return data_pendamping;
+   """
+   )
 
-# wait data fetched full after clicked button Lihat
-driver.implicitly_wait(40)
-driver.switch_to.active_element
-driver.switch_to.window(driver.window_handles[0])
-time.sleep(1)
+   print(result)
 
-# execute (scrap data with identifier) rules execute script
-result = driver.execute_script(
-"""
-var data_pendamping = [];
-for (var i of document.querySelectorAll('.modal#viewModalPPH')){
-   data_pendamping.push({
-      name:i.querySelector('span#lblNamaPendamping').textContent,
-      email:i.querySelector('span#lblEmailPendamping').textContent,
-      no_telp:i.querySelector('span#lblNoTelponPendamping').textContent,
-      pendampingan_pelaku_usaha:i.querySelector('table#gvData3>tbody').textContent,
-   });
-}
-return data_pendamping;
-"""
-)
+   # click button close after click detail(lihat) row
+   modal = driver.find_element(By.ID, 'viewModalPPH')
+   print(modal.is_displayed())
+   # if (WebDriverWait(driver, 20).until(modal.is_displayed())):
+   time.sleep(2)
+   driver.implicitly_wait(60)
 
-# print(result)
+   # init btn close modal selector
+   btn_close_click = WebDriverWait(driver, 20).until(ec.presence_of_all_elements_located((By.CLASS_NAME, "btn-close")))
+   visible_buttons = [close_button for close_button in btn_close_click if close_button.is_displayed()]
+
+   # do click close modal button
+   time.sleep(0.5)
+   driver.implicitly_wait(20)
+   btn_lihat_click = visible_buttons[len(visible_buttons) - 1]
+   driver.execute_script("arguments[0].click();", btn_lihat_click)
+   time.sleep(1)
+   driver.implicitly_wait(40)
+
+   time.sleep(1)
+   driver.implicitly_wait(40)
 
 # fn for click get amount row of current pagination
 def dataPerPage(num_page):
