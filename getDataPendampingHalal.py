@@ -38,16 +38,24 @@ time.sleep(1)
 driver.implicitly_wait(40)
 
 # click btn pagination if not in current page, give condition
-# btn_page_click = WebDriverWait(driver, 40).until(ec.element_to_be_clickable((By.XPATH,"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'11')]")))
-# exec_click = driver.execute_script("arguments[0].click();", btn_page_click)
+btn_page_click = WebDriverWait(driver, 40).until(ec.element_to_be_clickable((By.XPATH,"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'11')]")))
+exec_click = driver.execute_script("arguments[0].click();", btn_page_click)
 
-time.sleep(1)
-driver.implicitly_wait(40)
+time.sleep(2)
+driver.implicitly_wait(60)
 
-# btn_page_click = WebDriverWait(driver, 40).until(ec.element_to_be_clickable((By.XPATH,"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'13')]")))
-# exec_click = driver.execute_script("arguments[0].click();", btn_page_click)
+btn_page_next_click = WebDriverWait(driver, 40).until(ec.element_to_be_clickable((By.XPATH,"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'18')]")))
+exec_click = driver.execute_script("arguments[0].click();", btn_page_next_click)
 
-for i in range(10):
+time.sleep(2)
+driver.implicitly_wait(60)
+
+# should decrease 2 row, cause first row is thead and last row is pagination
+row_table_pendamping = len(driver.find_elements(By.XPATH, "//table[@id='GridView3']/tbody/tr")) - 2
+
+data_pendamping_halal = []
+
+for i in range(row_table_pendamping):
    time.sleep(2)
    driver.implicitly_wait(40)
    print(i)
@@ -69,7 +77,7 @@ for i in range(10):
          name:i.querySelector('span#lblNamaPendamping').textContent,
          email:i.querySelector('span#lblEmailPendamping').textContent,
          no_telp:i.querySelector('span#lblNoTelponPendamping').textContent,
-         pendampingan_pelaku_usaha:i.querySelector('table#gvData3>tbody').textContent,
+         pendampingan_pelaku_usaha: i.querySelector('div#UpdatePanel1>div').innerHTML,
       });
    }
    return data_pendamping;
@@ -77,6 +85,12 @@ for i in range(10):
    )
 
    print(result)
+   data_pendamping_halal.append({
+        "name": result[0]['name'],
+        "email": result[0]['email'],
+        "no_telp": result[0]['no_telp'],
+        "pendampingan_pelaku_usaha": result[0]['pendampingan_pelaku_usaha'],
+   })
 
    # click button close after click detail(lihat) row
    modal = driver.find_element(By.ID, 'viewModalPPH')
@@ -142,11 +156,13 @@ def clickAndGetOne(id_btn):
 
    return result
 
+print(data_pendamping_halal)
+
 # get keys (header) of data
-# keys = result[0].keys()
+keys = data_pendamping_halal[0].keys()
 
 # parsed to csv
-# with open('data_pendamping_halal.csv', 'w', newline='') as output_file:
-#     dict_writer = csv.DictWriter(output_file, keys)
-#     dict_writer.writeheader()
-#     dict_writer.writerows(result)
+with open('data_pendamping_halal.csv', 'w', newline='') as output_file:
+    dict_writer = csv.DictWriter(output_file, keys)
+    dict_writer.writeheader()
+    dict_writer.writerows(data_pendamping_halal)

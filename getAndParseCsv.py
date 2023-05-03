@@ -26,10 +26,11 @@ for product in products:
         "image": image
     })
 
+print(all_products)
 
 keys = all_products[0].keys()
 
-print(keys)
+# print(keys)
 
 # with open('products.csv', 'w', newline='') as output_file:
 #     dict_writer = csv.DictWriter(output_file, keys)
