@@ -10,9 +10,6 @@ import pandas as pd
 import time
 import csv
 
-# amount_data = 53514
-# amount_page = 5352
-
 # identify pagination
 # <a href="javascript:__doPostBack('GridView3','Page$3')">3</a> --changing (Page$1 - Page$11 - Page$Last/Page$5352)
 
@@ -32,131 +29,249 @@ url = "https://info.halal.go.id/pendampingan/"
 driver = webdriver.Chrome()
 driver.implicitly_wait(10)
 driver.get(url)
-
 # sleep and/or wait until web full opened
+time.sleep(2)
+driver.implicitly_wait(30)
+
+# click last page to count amount of page
+last_page_btn = WebDriverWait(driver, 10).until(ec.element_to_be_clickable((By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '>>']")))
+driver.execute_script("arguments[0].click();", last_page_btn)
+time.sleep(3)
+driver.implicitly_wait(60)
+last_page = driver.find_element(By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/span")
+time.sleep(2)
+driver.implicitly_wait(20)
+print(f"amount all pagination is {last_page.text}")
+
+# click firt page to back default
+# if last_page_btn.is_selected():
+   # first_page_btn = WebDriverWait(driver, 10).until(ec.element_to_be_clickable((By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '<<']")))
+   # driver.execute_script("arguments[0].click();", first_page_btn)
+   # time.sleep(1)
+   # driver.implicitly_wait(20)
+first_page_btn = WebDriverWait(driver, 10).until(ec.element_to_be_clickable((By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '<<']")))
+driver.execute_script("arguments[0].click();", first_page_btn)
 time.sleep(1)
-driver.implicitly_wait(40)
+driver.implicitly_wait(20)
 
-# click btn pagination if not in current page, give condition
-btn_page_click = WebDriverWait(driver, 40).until(ec.element_to_be_clickable((By.XPATH,"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'11')]")))
-exec_click = driver.execute_script("arguments[0].click();", btn_page_click)
-
-time.sleep(2)
-driver.implicitly_wait(60)
-
-btn_page_next_click = WebDriverWait(driver, 40).until(ec.element_to_be_clickable((By.XPATH,"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'18')]")))
-exec_click = driver.execute_script("arguments[0].click();", btn_page_next_click)
-
-time.sleep(2)
-driver.implicitly_wait(60)
-
-# should decrease 2 row, cause first row is thead and last row is pagination
-row_table_pendamping = len(driver.find_elements(By.XPATH, "//table[@id='GridView3']/tbody/tr")) - 2
-
+# list null for datas
 data_pendamping_halal = []
 
-for i in range(row_table_pendamping):
-   time.sleep(2)
-   driver.implicitly_wait(40)
-   print(i)
-   btn_lihat_click = WebDriverWait(driver, 60).until(ec.element_to_be_clickable((By.XPATH, f"//a[contains(@id,'GridView3_lbView_{i}')]")))
-   driver.execute_script("arguments[0].click();", btn_lihat_click)
+# init looping page
+# time.sleep(1)
+# driver.implicitly_wait(30)
+for x in range(int(last_page.text)):
+   print(f"Current page is {x+1}")
 
-   # wait data fetched full after clicked button lihat
-   driver.implicitly_wait(60)
-   driver.switch_to.active_element
-   driver.switch_to.window(driver.window_handles[0])
-   time.sleep(2)
+   # amount of pagination, except '...', another '...', '<<' and '>>'
+   # on first and last pager is 12, etc is 14
+   amount_pagination_current_page = len(driver.find_elements(By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td"))
 
-   # execute (scrap data with identifier) rules execute script
-   result = driver.execute_script(
-   """
-   var data_pendamping = [];
-   for (var i of document.querySelectorAll('.modal#viewModalPPH')){
-      data_pendamping.push({
-         name:i.querySelector('span#lblNamaPendamping').textContent,
-         email:i.querySelector('span#lblEmailPendamping').textContent,
-         no_telp:i.querySelector('span#lblNoTelponPendamping').textContent,
-         pendampingan_pelaku_usaha: i.querySelector('div#UpdatePanel1>div').innerHTML,
-      });
-   }
-   return data_pendamping;
-   """
-   )
+   if amount_pagination_current_page == 12 :
+      amount_pagination_12 = amount_pagination_current_page - 2
+      print(f"amount pagination {amount_pagination_current_page}")
+      # click btn pagination if not in current page, give condition (only first page)
+      for y in range(x+1):
+         # exception first page cause error
+         if y+1 != 1 :
+            # time.sleep(2)
+            # driver.implicitly_wait(30)
+            btn_page_click = WebDriverWait(driver, 50).until(ec.element_to_be_clickable((By.XPATH,f"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '{y+1}']")))
+            driver.execute_script("arguments[0].click();", btn_page_click)
+            time.sleep(3)
+            driver.implicitly_wait(60)
+         print(f"click pager's {y+1}")
 
-   print(result)
-   data_pendamping_halal.append({
-        "name": result[0]['name'],
-        "email": result[0]['email'],
-        "no_telp": result[0]['no_telp'],
-        "pendampingan_pelaku_usaha": result[0]['pendampingan_pelaku_usaha'],
-   })
+         ######
 
-   # click button close after click detail(lihat) row
-   modal = driver.find_element(By.ID, 'viewModalPPH')
-   print(modal.is_displayed())
-   # if (WebDriverWait(driver, 20).until(modal.is_displayed())):
-   time.sleep(2)
-   driver.implicitly_wait(60)
+         # amount of row in current table show, should decrease 2 row, cause first row is thead and last row is pagination
+         row_table_pendamping = len(driver.find_elements(By.XPATH, "//table[@id='GridView3']/tbody/tr")) - 2
 
-   # init btn close modal selector
-   btn_close_click = WebDriverWait(driver, 20).until(ec.presence_of_all_elements_located((By.CLASS_NAME, "btn-close")))
-   visible_buttons = [close_button for close_button in btn_close_click if close_button.is_displayed()]
+         # data_pendamping_halal = []
 
-   # do click close modal button
-   time.sleep(0.5)
-   driver.implicitly_wait(20)
-   btn_lihat_click = visible_buttons[len(visible_buttons) - 1]
-   driver.execute_script("arguments[0].click();", btn_lihat_click)
-   time.sleep(1)
-   driver.implicitly_wait(40)
+         time.sleep(3)
+         driver.implicitly_wait(60)
+         for i in range(row_table_pendamping):
+            time.sleep(2)
+            driver.implicitly_wait(60)
+            print(f"data index {i}")
+            btn_lihat_click = WebDriverWait(driver, 60).until(ec.element_to_be_clickable((By.XPATH, f"//a[contains(@id,'GridView3_lbView_{i}')]")))
+            driver.execute_script("arguments[0].click();", btn_lihat_click)
 
-   time.sleep(1)
-   driver.implicitly_wait(40)
+            # wait data fetched full after clicked button lihat
+            driver.implicitly_wait(60)
+            driver.switch_to.active_element
+            driver.switch_to.window(driver.window_handles[0])
+            time.sleep(2)
 
-# fn for click get amount row of current pagination
-def dataPerPage(num_page):
-   # click btn pagination if not in current page, give condition
-   btn_page_click = WebDriverWait(driver, 30).until(ec.element_to_be_clickable((By.XPATH, "//a[contains(@href,'javascript:__doPostBack('GridView3','"+ num_page +"')')]")))
-   driver.execute_script("arguments[0].click();", btn_page_click)
+            # checking is modal displayed or not yet
+            modal = driver.find_element(By.ID, 'viewModalPPH')
+            time.sleep(2)
+            driver.implicitly_wait(30)
+            print(f"modal view pph {modal.is_displayed()}")
+            if not modal.is_displayed():
+               print("Wait 3 sec.. until modal displayed True")
+            
+            time.sleep(3)
+            driver.implicitly_wait(60)
 
-   # wait data fetched full after clicked button pagination
-   driver.implicitly_wait(40)
-   time.sleep(1)
+            # execute (scrap data with identifier) rules execute script, if modal is displayed
+            # if modal.is_displayed(): (too take risk)
+            result = driver.execute_script(
+            """
+            var data_pendamping = [];
+            for (var i of document.querySelectorAll('.modal#viewModalPPH')){
+               data_pendamping.push({
+                  name:i.querySelector('span#lblNamaPendamping').textContent,
+                  email:i.querySelector('span#lblEmailPendamping').textContent,
+                  no_telp:i.querySelector('span#lblNoTelponPendamping').textContent,
+                  pendampingan_pelaku_usaha: i.querySelector('div#UpdatePanel1>div>table#gvData3>tbody').textContent,
+               });
+            }
+            return data_pendamping;
+            """
+            )
 
-   return 0
+            print(f"fetched data {result}")
+            data_pendamping_halal.append({
+               "name": result[0]['name'],
+               "email": result[0]['email'],
+               "no_telp": result[0]['no_telp'],
+               "pendampingan_pelaku_usaha": result[0]['pendampingan_pelaku_usaha'],
+            })
 
-# fn for click btn lihat and scrap data selected
-def clickAndGetOne(id_btn):
-   # Get button Lihat and click it, use wait until clicked, and use rules execute script
-   btn_lihat_click = WebDriverWait(driver, 30).until(ec.element_to_be_clickable((By.XPATH, "//a[contains(@id,'GridView3_lbView_"+ id_btn +"')]")))
-   driver.execute_script("arguments[0].click();", btn_lihat_click)
+            # click button close after click detail(lihat) row
+            modal = driver.find_element(By.ID, 'viewModalPPH')
+            print(f"modal view pph {modal.is_displayed()}, then close")
+            if modal.is_displayed() == False:
+               print("Wait 3 sec.. until modal displayed True, then close")
+               
+            time.sleep(3)
+            driver.implicitly_wait(60)
 
-   # wait data fetched full after clicked button Lihat
-   driver.implicitly_wait(40)
-   driver.switch_to.active_element
-   driver.switch_to.window(driver.window_handles[0])
-   time.sleep(1)
+            # init btn close modal selector
+            btn_close_click = WebDriverWait(driver, 30).until(ec.presence_of_all_elements_located((By.CLASS_NAME, "btn-close")))
+            visible_buttons = [close_button for close_button in btn_close_click if close_button.is_displayed()]
 
-   # execute (scrap data with identifier) rules execute script
-   result = driver.execute_script(
-   """
-   var data_pendamping = [];
-   for (var i of document.querySelectorAll('.modal#viewModalPPH')){
-      data_pendamping.push({
-         name:i.querySelector('span#lblNamaPendamping').textContent,
-         email:i.querySelector('span#lblEmailPendamping').textContent,
-         no_telp:i.querySelector('span#lblNoTelponPendamping').textContent,
-         pendampingan_pelaku_usaha:i.querySelector('table#gvData3>tbody').textContent,
-      });
-   }
-   return data_pendamping;
-   """
-   )
+            # do click close modal button
+            time.sleep(1)
+            driver.implicitly_wait(40)
+            btn_lihat_click = visible_buttons[len(visible_buttons) - 1]
+            driver.execute_script("arguments[0].click();", btn_lihat_click)
+            time.sleep(1)
+            driver.implicitly_wait(40)
 
-   return result
+            ######
+
+
+   #    elif amount_pagination_12 > x+1 :
+   #       btn_page_next_click = WebDriverWait(driver, 60).until(ec.element_to_be_clickable((By.XPATH,"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '...']")))
+   #       driver.execute_script("arguments[0].click();", btn_page_next_click)
+   #       time.sleep(2)
+   #       driver.implicitly_wait(60)
+
+   # elif amount_pagination_current_page == 14 :
+   #    amount_pagination_14 = amount_pagination_current_page - 4
+   #    print(f"amount pagination {amount_pagination_14}")
+   #    # click btn pagination if not in current page, give condition (to all page)
+   #    if amount_pagination_14 <= x+1:
+   #       btn_again_page_click = WebDriverWait(driver, 60).until(ec.element_to_be_clickable((By.XPATH,f"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '{x+1}']")))
+   #       driver.execute_script("arguments[0].click();", btn_again_page_click)
+   #       time.sleep(2)
+   #       driver.implicitly_wait(60)
+   #    elif amount_pagination_14 > x+1 :
+   #       btn_again_page_next_click = WebDriverWait(driver, 60).until(ec.element_to_be_clickable((By.XPATH,"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'21')]")))
+   #       driver.execute_script("arguments[0].click();", btn_again_page_next_click)
+   #       time.sleep(2)
+   #       driver.implicitly_wait(60)
+
+   # else :
+   #    btn_else_page_click = WebDriverWait(driver, 60).until(ec.element_to_be_clickable((By.XPATH,f"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '{x+1}']")))
+   #    driver.execute_script("arguments[0].click();", btn_else_page_click)
+   #    time.sleep(2)
+   #    driver.implicitly_wait(60)
+
+
+
+# # amount of row in current table show, should decrease 2 row, cause first row is thead and last row is pagination
+# row_table_pendamping = len(driver.find_elements(By.XPATH, "//table[@id='GridView3']/tbody/tr")) - 2
+
+# data_pendamping_halal = []
+
+# for i in range(row_table_pendamping):
+#    time.sleep(2)
+#    driver.implicitly_wait(60)
+#    print(f"data index {i}")
+#    btn_lihat_click = WebDriverWait(driver, 60).until(ec.element_to_be_clickable((By.XPATH, f"//a[contains(@id,'GridView3_lbView_{i}')]")))
+#    driver.execute_script("arguments[0].click();", btn_lihat_click)
+
+#    # wait data fetched full after clicked button lihat
+#    driver.implicitly_wait(60)
+#    driver.switch_to.active_element
+#    driver.switch_to.window(driver.window_handles[0])
+#    time.sleep(2)
+
+#    # checking is modal displayed or not yet
+#    modal = driver.find_element(By.ID, 'viewModalPPH')
+#    time.sleep(0.5)
+#    driver.implicitly_wait(30)
+#    print(f"modal view pph {modal.is_displayed()}")
+#    if not modal.is_displayed():
+#       print("Wait 3 sec.. until modal displayed True")
+   
+#    time.sleep(3)
+#    driver.implicitly_wait(60)
+
+#    # execute (scrap data with identifier) rules execute script, if modal is displayed
+#    # if modal.is_displayed(): (too take risk)
+#    result = driver.execute_script(
+#    """
+#    var data_pendamping = [];
+#    for (var i of document.querySelectorAll('.modal#viewModalPPH')){
+#       data_pendamping.push({
+#          name:i.querySelector('span#lblNamaPendamping').textContent,
+#          email:i.querySelector('span#lblEmailPendamping').textContent,
+#          no_telp:i.querySelector('span#lblNoTelponPendamping').textContent,
+#          pendampingan_pelaku_usaha: i.querySelector('div#UpdatePanel1>div>table#gvData3>tbody').textContent,
+#       });
+#    }
+#    return data_pendamping;
+#    """
+#    )
+
+#    print(f"fetched data {result}")
+#    data_pendamping_halal.append({
+#         "name": result[0]['name'],
+#         "email": result[0]['email'],
+#         "no_telp": result[0]['no_telp'],
+#         "pendampingan_pelaku_usaha": result[0]['pendampingan_pelaku_usaha'],
+#    })
+
+#    # click button close after click detail(lihat) row
+#    modal = driver.find_element(By.ID, 'viewModalPPH')
+#    print(f"modal view pph {modal.is_displayed()}, then close")
+#    if modal.is_displayed() == False:
+#       print("Wait 3 sec.. until modal displayed True, then close")
+      
+#    time.sleep(3)
+#    driver.implicitly_wait(60)
+
+#    # init btn close modal selector
+#    btn_close_click = WebDriverWait(driver, 30).until(ec.presence_of_all_elements_located((By.CLASS_NAME, "btn-close")))
+#    visible_buttons = [close_button for close_button in btn_close_click if close_button.is_displayed()]
+
+#    # do click close modal button
+#    time.sleep(1)
+#    driver.implicitly_wait(40)
+#    btn_lihat_click = visible_buttons[len(visible_buttons) - 1]
+#    driver.execute_script("arguments[0].click();", btn_lihat_click)
+#    time.sleep(1)
+#    driver.implicitly_wait(40)
+#    time.sleep(1)
+#    driver.implicitly_wait(40)
 
 print(data_pendamping_halal)
+print(f"total data fetched {len(data_pendamping_halal)}")
 
 # get keys (header) of data
 keys = data_pendamping_halal[0].keys()
