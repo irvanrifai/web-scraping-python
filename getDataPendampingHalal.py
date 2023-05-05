@@ -71,7 +71,7 @@ for x in range(int(last_page.text)):
       amount_pagination_12 = amount_pagination_current_page - 2
       print(f"amount pagination {amount_pagination_current_page}")
       # click btn pagination if not in current page, give condition (only first page)
-      for y in range(x+1):
+      for y in range(int(last_page.text)):
          # exception first page cause error
          if y+1 != 1 :
             # time.sleep(2)
@@ -80,86 +80,86 @@ for x in range(int(last_page.text)):
             driver.execute_script("arguments[0].click();", btn_page_click)
             time.sleep(3)
             driver.implicitly_wait(60)
-         print(f"click pager's {y+1}")
+            print(f"click pager's {y+1}")
 
-         ######
+            ######
 
-         # amount of row in current table show, should decrease 2 row, cause first row is thead and last row is pagination
-         row_table_pendamping = len(driver.find_elements(By.XPATH, "//table[@id='GridView3']/tbody/tr")) - 2
+            # amount of row in current table show, should decrease 2 row, cause first row is thead and last row is pagination
+            row_table_pendamping = len(driver.find_elements(By.XPATH, "//table[@id='GridView3']/tbody/tr")) - 2
 
-         # data_pendamping_halal = []
+            # data_pendamping_halal = []
 
-         time.sleep(3)
-         driver.implicitly_wait(60)
-         for i in range(row_table_pendamping):
-            time.sleep(2)
-            driver.implicitly_wait(60)
-            print(f"data index {i}")
-            btn_lihat_click = WebDriverWait(driver, 60).until(ec.element_to_be_clickable((By.XPATH, f"//a[contains(@id,'GridView3_lbView_{i}')]")))
-            driver.execute_script("arguments[0].click();", btn_lihat_click)
-
-            # wait data fetched full after clicked button lihat
-            driver.implicitly_wait(60)
-            driver.switch_to.active_element
-            driver.switch_to.window(driver.window_handles[0])
-            time.sleep(2)
-
-            # checking is modal displayed or not yet
-            modal = driver.find_element(By.ID, 'viewModalPPH')
-            time.sleep(2)
-            driver.implicitly_wait(30)
-            print(f"modal view pph {modal.is_displayed()}")
-            if not modal.is_displayed():
-               print("Wait 3 sec.. until modal displayed True")
-            
             time.sleep(3)
             driver.implicitly_wait(60)
+            for i in range(row_table_pendamping):
+               if y+1 != 1 and i != 0:
+                  time.sleep(2)
+                  driver.implicitly_wait(60)
+                  print(f"data index {i}")
+                  btn_lihat_click = WebDriverWait(driver, 60).until(ec.element_to_be_clickable((By.XPATH, f"//a[contains(@id,'GridView3_lbView_{i}')]")))
+                  driver.execute_script("arguments[0].click();", btn_lihat_click)
 
-            # execute (scrap data with identifier) rules execute script, if modal is displayed
-            # if modal.is_displayed(): (too take risk)
-            result = driver.execute_script(
-            """
-            var data_pendamping = [];
-            for (var i of document.querySelectorAll('.modal#viewModalPPH')){
-               data_pendamping.push({
-                  name:i.querySelector('span#lblNamaPendamping').textContent,
-                  email:i.querySelector('span#lblEmailPendamping').textContent,
-                  no_telp:i.querySelector('span#lblNoTelponPendamping').textContent,
-                  pendampingan_pelaku_usaha: i.querySelector('div#UpdatePanel1>div>table#gvData3>tbody').textContent,
-               });
-            }
-            return data_pendamping;
-            """
-            )
+                  # wait data fetched full after clicked button lihat
+                  driver.implicitly_wait(60)
+                  driver.switch_to.active_element
+                  driver.switch_to.window(driver.window_handles[0])
+                  time.sleep(2)
 
-            print(f"fetched data {result}")
-            data_pendamping_halal.append({
-               "name": result[0]['name'],
-               "email": result[0]['email'],
-               "no_telp": result[0]['no_telp'],
-               "pendampingan_pelaku_usaha": result[0]['pendampingan_pelaku_usaha'],
-            })
+                  # checking is modal displayed or not yet
+                  modal = driver.find_element(By.ID, 'viewModalPPH')
+                  time.sleep(2)
+                  driver.implicitly_wait(30)
+                  print(f"modal view pph {modal.is_displayed()}")
+                  if not modal.is_displayed():
+                     print("Wait 3 sec.. until modal displayed True")
+                  
+                  time.sleep(3)
+                  driver.implicitly_wait(60)
+                  # execute (scrap data with identifier) rules execute script, if modal is displayed
+                  # if modal.is_displayed(): (too take risk)
+                  result = driver.execute_script(
+                  """
+                  var data_pendamping = [];
+                  for (var i of document.querySelectorAll('.modal#viewModalPPH')){
+                     data_pendamping.push({
+                        email:i.querySelector('span#lblEmailPendamping').textContent,
+                        name:i.querySelector('span#lblNamaPendamping').textContent,
+                        no_telp:i.querySelector('span#lblNoTelponPendamping').textContent,
+                        pendampingan_pelaku_usaha: i.querySelector('div#UpdatePanel1>div>table#gvData3>tbody').textContent,
+                     });
+                  }
+                  return data_pendamping;
+                  """
+                  )
 
-            # click button close after click detail(lihat) row
-            modal = driver.find_element(By.ID, 'viewModalPPH')
-            print(f"modal view pph {modal.is_displayed()}, then close")
-            if modal.is_displayed() == False:
-               print("Wait 3 sec.. until modal displayed True, then close")
-               
-            time.sleep(3)
-            driver.implicitly_wait(60)
+                  print(f"fetched data {result}")
+                  data_pendamping_halal.append({
+                     "name": result[0]['name'],
+                     "email": result[0]['email'],
+                     "no_telp": result[0]['no_telp'],
+                     "pendampingan_pelaku_usaha": result[0]['pendampingan_pelaku_usaha'],
+                  })
 
-            # init btn close modal selector
-            btn_close_click = WebDriverWait(driver, 30).until(ec.presence_of_all_elements_located((By.CLASS_NAME, "btn-close")))
-            visible_buttons = [close_button for close_button in btn_close_click if close_button.is_displayed()]
+                  # click button close after click detail(lihat) row
+                  modal = driver.find_element(By.ID, 'viewModalPPH')
+                  print(f"modal view pph {modal.is_displayed()}, then close")
+                  if modal.is_displayed() == False:
+                     print("Wait 3 sec.. until modal displayed True, then close")
+                     
+                  time.sleep(3)
+                  driver.implicitly_wait(60)
 
-            # do click close modal button
-            time.sleep(1)
-            driver.implicitly_wait(40)
-            btn_lihat_click = visible_buttons[len(visible_buttons) - 1]
-            driver.execute_script("arguments[0].click();", btn_lihat_click)
-            time.sleep(1)
-            driver.implicitly_wait(40)
+                  # init btn close modal selector
+                  btn_close_click = WebDriverWait(driver, 40).until(ec.presence_of_all_elements_located((By.CLASS_NAME, "btn-close")))
+                  visible_buttons = [close_button for close_button in btn_close_click if close_button.is_displayed()]
+
+                  # do click close modal button
+                  time.sleep(2)
+                  driver.implicitly_wait(40)
+                  btn_lihat_click = visible_buttons[len(visible_buttons) - 1]
+                  driver.execute_script("arguments[0].click();", btn_lihat_click)
+                  time.sleep(1)
+                  driver.implicitly_wait(40)
 
             ######
 
