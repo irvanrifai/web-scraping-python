@@ -8,7 +8,37 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 import pandas as pd
 import time
+import mysql.connector
 import csv
+
+db = mysql.connector.connect(
+  host="localhost",
+  user="root",
+  passwd="",
+  database="data_pendamping_halal"
+)
+
+if db.is_connected():
+  print("Berhasil terhubung ke database")
+
+cursor = db.cursor()
+# cursor.execute("CREATE DATABASE data_pendamping_halal")
+
+# sql = """CREATE TABLE history (
+#   id INT AUTO_INCREMENT PRIMARY KEY,
+#   last_page VARCHAR(255),
+#   last_row VARCHAR(255)
+# )
+# """
+# cursor.execute(sql)
+
+sql = "INSERT INTO data_pph (email, name, no_telp, pendampingan_pelaku_usaha) VALUES (%s, %s, %s, %s)"
+val = ("dian@example.com", "dian", "d14n", "diaann")
+cursor.execute(sql, val)
+
+db.commit()
+
+print('table created!')
 
 # identify pagination
 # <a href="javascript:__doPostBack('GridView3','Page$3')">3</a> --changing (Page$1 - Page$11 - Page$Last/Page$5352)
@@ -121,6 +151,9 @@ def clickDetailPerRow():
       print('')
       btn_lihat_click = WebDriverWait(driver, 60).until(ec.element_to_be_clickable((By.XPATH, f"//a[contains(@id,'GridView3_lbView_{i}')]")))
       driver.execute_script("arguments[0].click();", btn_lihat_click)
+
+      time.sleep(2)
+      driver.implicitly_wait(60)
 
       openModalGetDataCloseModalPerRow()
 
