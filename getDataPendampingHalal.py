@@ -17,28 +17,9 @@ db = mysql.connector.connect(
   passwd="",
   database="data_pendamping_halal"
 )
-
 if db.is_connected():
-  print("Berhasil terhubung ke database")
-
+  print("connected to database!")
 cursor = db.cursor()
-# cursor.execute("CREATE DATABASE data_pendamping_halal")
-
-# sql = """CREATE TABLE history (
-#   id INT AUTO_INCREMENT PRIMARY KEY,
-#   last_page VARCHAR(255),
-#   last_row VARCHAR(255)
-# )
-# """
-# cursor.execute(sql)
-
-sql = "INSERT INTO data_pph (email, name, no_telp, pendampingan_pelaku_usaha) VALUES (%s, %s, %s, %s)"
-val = ("dian@example.com", "dian", "d14n", "diaann")
-cursor.execute(sql, val)
-
-db.commit()
-
-print('table created!')
 
 # identify pagination
 # <a href="javascript:__doPostBack('GridView3','Page$3')">3</a> --changing (Page$1 - Page$11 - Page$Last/Page$5352)
@@ -106,6 +87,12 @@ def openModalGetDataCloseModalPerRow():
       "pendampingan_pelaku_usaha": result[0]['pendampingan_pelaku_usaha'],
    })
 
+   sql = "INSERT INTO data_pph (email, name, no_telp, pendampingan_pelaku_usaha) VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE name = VALUES(name), no_telp = VALUES(no_telp), pendampingan_pelaku_usaha = VALUES(pendampingan_pelaku_usaha)"
+   val = (result[0]['email'], result[0]['name'], result[0]['no_telp'], result[0]['pendampingan_pelaku_usaha'])
+   cursor.execute(sql, val)
+   db.commit()
+   print('one row data stored to database!')
+
    # click button close after click detail(lihat) row
    modal = driver.find_element(By.ID, 'viewModalPPH')
    print(f"modal view pph {modal.is_displayed()}, then close")
@@ -154,6 +141,12 @@ def clickDetailPerRow():
 
       time.sleep(2)
       driver.implicitly_wait(60)
+
+      sql = "INSERT INTO history (id, last_page, last_row) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE last_page = VALUES(last_page), last_row = VALUES(last_row)"
+      val = (1, y+1, i)
+      cursor.execute(sql, val)
+      db.commit()
+      print('history recorded!')
 
       openModalGetDataCloseModalPerRow()
 
