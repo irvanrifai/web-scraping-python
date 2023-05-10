@@ -169,9 +169,12 @@ def callDependPageIfLostConnection(last_page):
    driver.execute_script("arguments[0].click();", btn_page_next_click)
    time.sleep(3)
    driver.implicitly_wait(60)
+   print('')
+   print(f"click pager's {last_page} --non % 10")
+   print('')
 
 # click last page to count amount of page
-last_page_btn = WebDriverWait(driver, 10).until(ec.element_to_be_clickable((By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '>>']")))
+last_page_btn = WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '>>']")))
 driver.execute_script("arguments[0].click();", last_page_btn)
 time.sleep(3)
 driver.implicitly_wait(60)
@@ -188,7 +191,7 @@ print('')
    # driver.execute_script("arguments[0].click();", first_page_btn)
    # time.sleep(1)
    # driver.implicitly_wait(20)
-first_page_btn = WebDriverWait(driver, 10).until(ec.element_to_be_clickable((By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '<<']")))
+first_page_btn = WebDriverWait(driver, 18).until(ec.element_to_be_clickable((By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '<<']")))
 driver.execute_script("arguments[0].click();", first_page_btn)
 time.sleep(1)
 driver.implicitly_wait(20)
@@ -224,30 +227,51 @@ for x in range(int(last_page)):
       
       callDependPageIfLostConnection(51)
 
-      for y in range(51, int(last_page), 1):
-         time.sleep(3)
-         driver.implicitly_wait(60)
-         # exception first page cause error
-         if y+1 != 1 and y % 10 != 0:
-            time.sleep(2)
-            driver.implicitly_wait(30)
-            # btn_page_click = WebDriverWait(driver, 50).until(ec.element_to_be_clickable((By.XPATH,f"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '{y+1}']")))
-            btn_page_click = WebDriverWait(driver, 50).until(ec.element_to_be_clickable((By.XPATH,f"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'{y+1}')]")))
-            driver.execute_script("arguments[0].click();", btn_page_click)
-            time.sleep(3)
-            driver.implicitly_wait(60)
-            print('')
-            print(f"click pager's {y+1} --non % 10")
-            print('')
+      callDependPageIfLostConnection(61)
 
-         elif y % 10 == 0 :
-            btn_page_next_click = WebDriverWait(driver, 50).until(ec.element_to_be_clickable((By.XPATH,f"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'{y+1}')]")))
-            driver.execute_script("arguments[0].click();", btn_page_next_click)
-            time.sleep(3)
-            driver.implicitly_wait(60)
-            print('')
-            print(f"click pager's {y+1} --can % 10")
-            print('')
+      callDependPageIfLostConnection(71)
+      
+      callDependPageIfLostConnection(81)
+
+      callDependPageIfLostConnection(91)
+      
+      callDependPageIfLostConnection(101)
+      
+      callDependPageIfLostConnection(111)
+      
+      callDependPageIfLostConnection(121)
+      
+      callDependPageIfLostConnection(131)
+
+      for y in range(137, int(last_page), 1):
+         time.sleep(4)
+         driver.implicitly_wait(60)
+
+         callDependPageIfLostConnection(y+1)
+
+         # exception first page cause error
+         # if y+1 != 1 and y % 10 != 0:
+         #    time.sleep(2)
+         #    driver.implicitly_wait(30)
+         #    btn_page_click = WebDriverWait(driver, 50).until(ec.element_to_be_clickable((By.XPATH,f"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '{y+1}']")))
+         #    # btn_page_click = WebDriverWait(driver, 50).until(ec.element_to_be_clickable((By.XPATH,f"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'{y+1}')]")))
+         #    driver.execute_script("arguments[0].click();", btn_page_click)
+         #    driver.execute_script("arguments[0].click();", btn_page_click)
+         #    time.sleep(3)
+         #    driver.implicitly_wait(60)
+         #    print('')
+         #    print(f"click pager's {y+1} --non % 10")
+         #    print('')
+
+         # elif y % 10 == 0 :
+         #    btn_page_next_click = WebDriverWait(driver, 50).until(ec.element_to_be_clickable((By.XPATH,f"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'{y+1}')]")))
+         #    driver.execute_script("arguments[0].click();", btn_page_next_click)
+         #    driver.execute_script("arguments[0].click();", btn_page_next_click)
+         #    time.sleep(3)
+         #    driver.implicitly_wait(60)
+         #    print('')
+         #    print(f"click pager's {y+1} --can % 10")
+         #    print('')
 
          clickDetailPerRow()
 
