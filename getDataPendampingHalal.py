@@ -87,9 +87,16 @@ def openModalGetDataCloseModalPerRow():
       "pendampingan_pelaku_usaha": result[0]['pendampingan_pelaku_usaha'],
    })
 
-   sql = "INSERT INTO data_pph (email, name, no_telp, pendampingan_pelaku_usaha) VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE name = VALUES(name), no_telp = VALUES(no_telp), pendampingan_pelaku_usaha = VALUES(pendampingan_pelaku_usaha)"
+   # sql = "INSERT INTO data_pph (email, name, no_telp, pendampingan_pelaku_usaha) VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE name = VALUES(name), no_telp = VALUES(no_telp), pendampingan_pelaku_usaha = VALUES(pendampingan_pelaku_usaha)"
+   # # sql = "REPLACE INTO data_pph (email, name, no_telp, pendampingan_pelaku_usaha) VALUES (%s, %s, %s, %s)"
+   # val = (result[0]['email'], result[0]['name'], result[0]['no_telp'], result[0]['pendampingan_pelaku_usaha'])
+   # cursor.execute(sql, val)
+   # db.commit()
+   # print('one row data stored to database!')
+
+   sql = "INSERT INTO data_pph_province (province, email, name, no_telp, pendampingan_pelaku_usaha) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE name = VALUES(name), no_telp = VALUES(no_telp), pendampingan_pelaku_usaha = VALUES(pendampingan_pelaku_usaha)"
    # sql = "REPLACE INTO data_pph (email, name, no_telp, pendampingan_pelaku_usaha) VALUES (%s, %s, %s, %s)"
-   val = (result[0]['email'], result[0]['name'], result[0]['no_telp'], result[0]['pendampingan_pelaku_usaha'])
+   val = (nameProv, result[0]['email'], result[0]['name'], result[0]['no_telp'], result[0]['pendampingan_pelaku_usaha'])
    cursor.execute(sql, val)
    db.commit()
    print('one row data stored to database!')
@@ -173,17 +180,154 @@ def callDependPageIfLostConnection(last_page):
    print(f"click pager's {last_page} --non % 10")
    print('')
 
-# click last page to count amount of page
-last_page_btn = WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '>>']")))
-driver.execute_script("arguments[0].click();", last_page_btn)
-time.sleep(3)
-driver.implicitly_wait(60)
-last_page = driver.find_element(By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/span").text
-time.sleep(2)
-driver.implicitly_wait(20)
-print('')
-print(f"amount all pagination is {last_page}")
-print('')
+# use batch(per provinsi) select provinsi from 1 - 34
+selectOptProv = driver.find_elements(By.XPATH, "//select[@id='ddlProv']/option")
+print(f'Amount of select option province is {len(selectOptProv) - 1}')
+valProv = [11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 31, 32, 33, 34, 35, 36, 51, 52, 53, 61, 62, 63, 64, 65, 71, 72, 73, 74, 75, 76, 81, 82, 91, 92]
+
+# list null for datas
+data_pendamping_halal = []
+
+for p in range(0, len(selectOptProv) - 1, 1):
+   # select btn
+   selectProvBtn = WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, "//select[@id='ddlProv']")))
+   driver.execute_script("arguments[0].click();", selectProvBtn)
+   time.sleep(4)
+   driver.implicitly_wait(60)
+   
+   # option btn
+   test = driver.find_element(By.XPATH, f"//select[@id='ddlProv']/option[@value='{valProv[p]}']").click()
+   # optionProvBtn = WebDriverWait(driver, 20).until(ec.element_to_be_clickable((By.XPATH, f"//select[@id='ddlProv']/option[@value='11']")))
+   # driver.execute_script("arguments[0].click();", optionProvBtn)
+   time.sleep(5)
+   driver.implicitly_wait(80)
+   
+   nameProv = driver.find_element(By.XPATH, "//select[@id='ddlProv']/option[@selected='selected']").text
+   print(f'Current Province selected is {nameProv}')
+
+   time.sleep(3)
+   driver.implicitly_wait(50)
+   amount_pagination_current_page = len(driver.find_elements(By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td"))
+
+   print(f'Amount pagination current page is {amount_pagination_current_page}')
+
+   if amount_pagination_current_page == 12:
+      # test
+      # click >> count page, back
+      # loop count page
+      # click last page to count amount of page
+      last_page_btn = WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '>>']")))
+      driver.execute_script("arguments[0].click();", last_page_btn)
+      time.sleep(3)
+      driver.implicitly_wait(60)
+      last_page = driver.find_element(By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/span").text
+      time.sleep(2)
+      driver.implicitly_wait(20)
+      print('')
+      print(f"amount all pagination is {last_page}")
+      print('')
+
+      # click firt page to back default
+      first_page_btn = WebDriverWait(driver, 18).until(ec.element_to_be_clickable((By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '<<']")))
+      driver.execute_script("arguments[0].click();", first_page_btn)
+      time.sleep(1)
+      driver.implicitly_wait(20)
+
+      for x in range(int(last_page)):
+         print(f"Current page is {x+1}")
+         print('')
+         print('12 --')
+
+         amount_pagination_current_page = len(driver.find_elements(By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td"))
+         print(f"amount pagination {amount_pagination_current_page}")
+
+         for y in range(0, int(last_page), 1):
+            time.sleep(4)
+            driver.implicitly_wait(60)
+
+            # if y+1 != 1:
+               # callDependPageIfLostConnection(y+1)
+               # exception first page cause error
+            if y+1 != 1 and y % 10 != 0:
+               time.sleep(2)
+               driver.implicitly_wait(30)
+               btn_page_click = WebDriverWait(driver, 50).until(ec.element_to_be_clickable((By.XPATH,f"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '{y+1}']")))
+               # btn_page_click = WebDriverWait(driver, 50).until(ec.element_to_be_clickable((By.XPATH,f"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'{y+1}')]")))
+               driver.execute_script("arguments[0].click();", btn_page_click)
+               time.sleep(3)
+               driver.implicitly_wait(60)
+               print('')
+               print(f"click pager's {y+1} --non % 10")
+               print('')
+               clickDetailPerRow()
+
+            elif y+1 == 1:
+               # continue
+               clickDetailPerRow()
+
+            elif y % 10 == 0 :
+               btn_page_next_click = WebDriverWait(driver, 50).until(ec.element_to_be_clickable((By.XPATH,f"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'{y+1}')]")))
+               driver.execute_script("arguments[0].click();", btn_page_next_click)
+               time.sleep(3)
+               driver.implicitly_wait(60)
+               print('')
+               print(f"click pager's {y+1} --can % 10")
+               print('')
+               clickDetailPerRow()
+            
+            # clickDetailPerRow()
+
+   else : 
+      # loop count exist
+      print('non 12')
+      print('')
+      amount_pagination_current_page = len(driver.find_elements(By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td"))
+      print(f"amount pagination {amount_pagination_current_page}")
+
+      for e in range(0, int(amount_pagination_current_page), 1):
+         time.sleep(4)
+         driver.implicitly_wait(60)
+
+         if e+1 != 1 and e % 10 != 0:
+            time.sleep(2)
+            driver.implicitly_wait(30)
+            btn_page_click = WebDriverWait(driver, 50).until(ec.element_to_be_clickable((By.XPATH,f"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '{e+1}']")))
+            # btn_page_click = WebDriverWait(driver, 50).until(ec.element_to_be_clickable((By.XPATH,f"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'{y+1}')]")))
+            driver.execute_script("arguments[0].click();", btn_page_click)
+            time.sleep(3)
+            driver.implicitly_wait(60)
+            print('')
+            print(f"click pager's {e+1} --non % 10")
+            print('')
+            clickDetailPerRow()
+
+         elif e+1 == 1:
+            # continue
+            clickDetailPerRow()
+
+         elif e % 10 == 0 :
+            btn_page_next_click = WebDriverWait(driver, 50).until(ec.element_to_be_clickable((By.XPATH,f"//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[contains(@href,'{e+1}')]")))
+            driver.execute_script("arguments[0].click();", btn_page_next_click)
+            time.sleep(3)
+            driver.implicitly_wait(60)
+            print('')
+            print(f"click pager's {e+1} --can % 10")
+            print('')
+            clickDetailPerRow()
+            
+         # clickDetailPerRow()
+
+# # click last page to count amount of page
+# last_page_btn = WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '>>']")))
+# driver.execute_script("arguments[0].click();", last_page_btn)
+# time.sleep(3)
+# driver.implicitly_wait(60)
+# last_page = driver.find_element(By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/span").text
+# time.sleep(2)
+# driver.implicitly_wait(20)
+# print('')
+# print(f"amount all pagination is {last_page}")
+# print('')
 
 # click firt page to back default
 # if last_page_btn.is_selected():
@@ -191,63 +335,65 @@ print('')
    # driver.execute_script("arguments[0].click();", first_page_btn)
    # time.sleep(1)
    # driver.implicitly_wait(20)
-first_page_btn = WebDriverWait(driver, 18).until(ec.element_to_be_clickable((By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '<<']")))
-driver.execute_script("arguments[0].click();", first_page_btn)
-time.sleep(1)
-driver.implicitly_wait(20)
+# first_page_btn = WebDriverWait(driver, 18).until(ec.element_to_be_clickable((By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '<<']")))
+# driver.execute_script("arguments[0].click();", first_page_btn)
+# time.sleep(1)
+# driver.implicitly_wait(20)
 
 # list null for datas
-data_pendamping_halal = []
+# data_pendamping_halal = []
 
 # init looping page
 # time.sleep(1)
 # driver.implicitly_wait(30)
-for x in range(int(last_page)):
-   print(f"Current page is {x+1}")
+
+# for x in range(int(last_page)):
+#    print(f"Current page is {x+1}")
 
    # amount of pagination, except '...', another '...', '<<' and '>>'
    # on first and last pager is 12, etc is 14
-   amount_pagination_current_page = len(driver.find_elements(By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td"))
+   # amount_pagination_current_page = len(driver.find_elements(By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td"))
 
-   if amount_pagination_current_page == 12 :
-      amount_pagination_12 = amount_pagination_current_page - 2
-      print(f"amount pagination {amount_pagination_current_page}")
-      print('')
+   # if amount_pagination_current_page == 12 :
+   #    amount_pagination_12 = amount_pagination_current_page - 2
+   #    print(f"amount pagination {amount_pagination_current_page}")
+   #    print('')
       # click btn pagination if not in current page, give condition (only first page)
       
       # last_page_db = 17
 
-      callDependPageIfLostConnection(11)
+      # callDependPageIfLostConnection(11)
 
-      callDependPageIfLostConnection(21)
+      # callDependPageIfLostConnection(21)
       
-      callDependPageIfLostConnection(31)
+      # callDependPageIfLostConnection(31)
       
-      callDependPageIfLostConnection(41)
+      # callDependPageIfLostConnection(41)
       
-      callDependPageIfLostConnection(51)
+      # callDependPageIfLostConnection(51)
 
-      callDependPageIfLostConnection(61)
+      # callDependPageIfLostConnection(61)
 
-      callDependPageIfLostConnection(71)
+      # callDependPageIfLostConnection(71)
       
-      callDependPageIfLostConnection(81)
+      # callDependPageIfLostConnection(81)
 
-      callDependPageIfLostConnection(91)
+      # callDependPageIfLostConnection(91)
       
-      callDependPageIfLostConnection(101)
+      # callDependPageIfLostConnection(101)
       
-      callDependPageIfLostConnection(111)
+      # callDependPageIfLostConnection(111)
       
-      callDependPageIfLostConnection(121)
+      # callDependPageIfLostConnection(121)
       
-      callDependPageIfLostConnection(131)
+      # callDependPageIfLostConnection(131)
 
-      for y in range(137, int(last_page), 1):
-         time.sleep(4)
-         driver.implicitly_wait(60)
+      # for y in range(137, int(last_page), 1):
+      #    time.sleep(4)
+      #    driver.implicitly_wait(60)
 
-         callDependPageIfLostConnection(y+1)
+      #    callDependPageIfLostConnection(y+1)
+      #    clickDetailPerRow()
 
          # exception first page cause error
          # if y+1 != 1 and y % 10 != 0:
@@ -273,7 +419,7 @@ for x in range(int(last_page)):
          #    print(f"click pager's {y+1} --can % 10")
          #    print('')
 
-         clickDetailPerRow()
+         # clickDetailPerRow()
 
 print(data_pendamping_halal)
 print(f"total data fetched {len(data_pendamping_halal)}")
