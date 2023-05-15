@@ -190,7 +190,7 @@ valProv = [11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 31, 32, 33, 34, 35, 36, 51, 5
 # list null for datas
 data_pendamping_halal = []
 
-for p in range(14, len(selectOptProv) - 1, 1):
+for p in range(11, len(selectOptProv) - 1, 1):
    # select btn
    selectProvBtn = WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, "//select[@id='ddlProv']")))
    driver.execute_script("arguments[0].click();", selectProvBtn)
@@ -244,7 +244,7 @@ for p in range(14, len(selectOptProv) - 1, 1):
          print(f"amount pagination {amount_pagination_current_page}")
 
 
-         lostPage = 37
+         lostPage = 244
 
          for c in range(11, lostPage, 10):
             callDependPageIfLostConnection(c)
