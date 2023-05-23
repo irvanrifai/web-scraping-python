@@ -13,7 +13,7 @@ if db.is_connected():
   print("Database connected")
 cursor = db.cursor()
 
-query = "select distinct email, name, no_telp from data_pph"
+query = "select province, name, email, no_telp from data_pph_province order by province asc"
 
 cursor.execute(query)
 
@@ -24,7 +24,7 @@ for data in result:
     print(data)
 
 # parsed to csv
-with open('data_pendamping_halal.csv', 'w', newline='') as output_file:
+with open('data_pendamping_halal_all(by province-no filter).csv', 'w', newline='', encoding="utf-8") as output_file:
     dict_writer = csv.writer(output_file)
     # dict_writer = csv.DictWriter(output_file)
     # dict_writer.writeheader()

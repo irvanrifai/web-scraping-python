@@ -14,7 +14,7 @@ if db.is_connected():
 cursor = db.cursor()
 
 # query = "select count(email) from data_pph"
-query = "select count(distinct email) from data_pph_province"
+query = "select count(distinct no_telp) from data_pph_province"
 
 cursor.execute(query)
 

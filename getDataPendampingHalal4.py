@@ -190,7 +190,7 @@ valProv = [11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 31, 32, 33, 34, 35, 36, 51, 5
 # list null for datas
 data_pendamping_halal = []
 
-for p in range(14, len(selectOptProv) - 1, 1):
+for p in range(33, len(selectOptProv) - 1, 1):
    # select btn
    selectProvBtn = WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, "//select[@id='ddlProv']")))
    driver.execute_script("arguments[0].click();", selectProvBtn)
@@ -213,16 +213,17 @@ for p in range(14, len(selectOptProv) - 1, 1):
 
    print(f'Amount pagination current page is {amount_pagination_current_page}')
 
-   if amount_pagination_current_page == 12:
+   if amount_pagination_current_page != 12:
       # test
       # click >> count page, back
       # loop count page
       # click last page to count amount of page
-      last_page_btn = WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '>>']")))
-      driver.execute_script("arguments[0].click();", last_page_btn)
+      # last_page_btn = WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '>>']")))
+      # driver.execute_script("arguments[0].click();", last_page_btn)
       time.sleep(3)
       driver.implicitly_wait(60)
       last_page = driver.find_element(By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/span").text
+      last_page = 8
       time.sleep(2)
       driver.implicitly_wait(20)
       print('')
@@ -230,8 +231,8 @@ for p in range(14, len(selectOptProv) - 1, 1):
       print('')
 
       # click firt page to back default
-      first_page_btn = WebDriverWait(driver, 18).until(ec.element_to_be_clickable((By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '<<']")))
-      driver.execute_script("arguments[0].click();", first_page_btn)
+      # first_page_btn = WebDriverWait(driver, 18).until(ec.element_to_be_clickable((By.XPATH, "//table[@id='GridView3']/tbody/tr[@class='GridPager']/td/table/tbody/tr/td/a[text() = '<<']")))
+      # driver.execute_script("arguments[0].click();", first_page_btn)
       time.sleep(1)
       driver.implicitly_wait(20)
 
@@ -244,10 +245,10 @@ for p in range(14, len(selectOptProv) - 1, 1):
          print(f"amount pagination {amount_pagination_current_page}")
 
 
-         lostPage = 759
+         lostPage = 0
 
-         for c in range(11, lostPage, 10):
-            callDependPageIfLostConnection(c)
+         # for c in range(11, lostPage, 10):
+         #    callDependPageIfLostConnection(c)
 
          for y in range(lostPage, int(last_page), 1):
             time.sleep(4)
