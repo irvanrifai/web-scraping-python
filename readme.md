@@ -8,6 +8,6 @@ lets scrapppp !!!!!
     ### selenium (plugin)
     ### pandas (plugin)
 - Install XAMPP or Laragon (with mysql version 8.0.30)
-- Inntall DBeaver or Table plus or just use phpmyadmin browser
+- Install DBeaver or Table plus or just use phpmyadmin browser
 - Install Vscode
 - Install Git
