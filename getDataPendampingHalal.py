@@ -94,20 +94,20 @@ def openModalGetDataCloseModalPerRow():
    # db.commit()
    # print('one row data stored to database!')
 
-   sql_check = "SELECT * FROM data_pph_province WHERE email = '%s' LIMIT 10" % result[0]['email']
-   cursor.execute(sql_check)
-   check = list(cursor.fetchall())
+   # sql_check = "SELECT * FROM data_pph_province WHERE email = '%s' LIMIT 10" % result[0]['email']
+   # cursor.execute(sql_check)
+   # check = list(cursor.fetchall())
 
-   if len(check) > 0:
-      print("data exist in DB, skipped!")
-   else:
-      sql = "INSERT INTO data_pph_province (province, email, name, no_telp, pendampingan_pelaku_usaha) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE name = VALUES(name), no_telp = VALUES(no_telp), pendampingan_pelaku_usaha = VALUES(pendampingan_pelaku_usaha)"
-      # sql = "REPLACE INTO data_pph (email, name, no_telp, pendampingan_pelaku_usaha) VALUES (%s, %s, %s, %s)"
-      val = (nameProv, result[0]['email'], result[0]['name'], result[0]['no_telp'], result[0]['pendampingan_pelaku_usaha'])
-      cursor.execute(sql, val)
-      db.commit()
-      print('one row data stored to database!')
+   # if len(check) > 0:
+   #    print("data exist in DB, skipped!")
+   # else:
 
+   sql = "INSERT INTO data_pph_province (province, email, name, no_telp, pendampingan_pelaku_usaha) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE name = VALUES(name), no_telp = VALUES(no_telp), pendampingan_pelaku_usaha = VALUES(pendampingan_pelaku_usaha)"
+   # sql = "REPLACE INTO data_pph (email, name, no_telp, pendampingan_pelaku_usaha) VALUES (%s, %s, %s, %s)"
+   val = (nameProv, result[0]['email'], result[0]['name'], result[0]['no_telp'], result[0]['pendampingan_pelaku_usaha'])
+   cursor.execute(sql, val)
+   db.commit()
+   print('one row data stored to database!')
 
    # click button close after click detail(lihat) row
    modal = driver.find_element(By.ID, 'viewModalPPH')
