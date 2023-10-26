@@ -72,7 +72,6 @@ def openModalGetDataCloseModalPerRow():
                email:i.querySelector('span#lblEmailPendamping').textContent,
                name:i.querySelector('span#lblNamaPendamping').textContent,
                no_telp:i.querySelector('span#lblNoTelponPendamping').textContent,
-               pendampingan_pelaku_usaha: i.querySelector('div#UpdatePanel1>div>table#gvData3>tbody').textContent,
             });
          }
          return data_pendamping;
@@ -84,7 +83,6 @@ def openModalGetDataCloseModalPerRow():
       "name": result[0]['name'],
       "email": result[0]['email'],
       "no_telp": result[0]['no_telp'],
-      "pendampingan_pelaku_usaha": result[0]['pendampingan_pelaku_usaha'],
    })
 
    # sql = "INSERT INTO data_pph (email, name, no_telp, pendampingan_pelaku_usaha) VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE name = VALUES(name), no_telp = VALUES(no_telp), pendampingan_pelaku_usaha = VALUES(pendampingan_pelaku_usaha)"
@@ -104,7 +102,7 @@ def openModalGetDataCloseModalPerRow():
 
    sql = "INSERT INTO data_pph_province (province, email, name, no_telp, pendampingan_pelaku_usaha) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE name = VALUES(name), no_telp = VALUES(no_telp), pendampingan_pelaku_usaha = VALUES(pendampingan_pelaku_usaha)"
    # sql = "REPLACE INTO data_pph (email, name, no_telp, pendampingan_pelaku_usaha) VALUES (%s, %s, %s, %s)"
-   val = (nameProv, result[0]['email'], result[0]['name'], result[0]['no_telp'], result[0]['pendampingan_pelaku_usaha'])
+   val = (nameProv, result[0]['email'], result[0]['name'], result[0]['no_telp'], 'NaN')
    cursor.execute(sql, val)
    db.commit()
    print('one row data stored to database!')
@@ -173,11 +171,11 @@ def clickDetailPerRow():
       time.sleep(2)
       driver.implicitly_wait(60)
 
-      sql = "INSERT INTO history (id, last_page, last_row) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE last_page = VALUES(last_page), last_row = VALUES(last_row)"
-      val = (1, y+1, i)
-      cursor.execute(sql, val)
-      db.commit()
-      print('history recorded!')
+      # sql = "INSERT INTO history (id, last_page, last_row) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE last_page = VALUES(last_page), last_row = VALUES(last_row)"
+      # val = (1, y+1, i)
+      # cursor.execute(sql, val)
+      # db.commit()
+      # print('history recorded!')
 
       openModalGetDataCloseModalPerRow()
 
