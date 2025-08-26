@@ -1,4 +1,6 @@
-lets scrapppp !!!!!
+Web Scrapping using Python Selenium
+
+---
 
 # Prerequisites On New Device
 - Install Python version 3.10.6
